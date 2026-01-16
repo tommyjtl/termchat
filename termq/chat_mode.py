@@ -42,8 +42,8 @@ def main():
         "-e",
         "--load-engine",
         dest="engine_type",
-        default="gpt-3.5-turbo",
-        help="Specify an engine type, default is `gpt-3.5-turbo`.",
+        default="gpt-5-mini",
+        help="Specify an engine type, default is `gpt-5-mini`.",
     )
     parser.add_argument(
         "--tts",
@@ -94,10 +94,10 @@ def main():
 
             current_msg = ""
             for chunk in openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+                model="gpt-5-mini",
                 # model="gpt-4",
                 messages=messages,
-                temperature=character["temperature"],
+                # temperature=character["temperature"],
                 stream=True,
             ):
                 content = chunk["choices"][0].get("delta", {}).get("content")
@@ -135,10 +135,10 @@ def main():
             if args.steaming_mode:
                 current_msg = ""
                 for chunk in openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
+                    model="gpt-5-mini",
                     # model="gpt-4",
                     messages=messages,
-                    temperature=character["temperature"],
+                    # temperature=character["temperature"],
                     stream=True,
                 ):
                     content = chunk["choices"][0].get("delta", {}).get("content")
@@ -162,7 +162,7 @@ def main():
                         result = openai.ChatCompletion.create(
                             model=args.engine_type,
                             messages=messages,
-                            temperature=character["temperature"],
+                            # temperature=character["temperature"],
                             timeout=30,  # set a request timeout of 30 seconds
                         )
                     except Exception as e:
