@@ -1,4 +1,4 @@
-# TermChat
+# TermQ
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges)
@@ -14,8 +14,8 @@ export OPENAI_API_KEY=<your key>
 ```
 
 ```bash
-python -m termchat-venv
-source termchat-venv/bin/activate
+python -m termq-venv
+source termq-venv/bin/activate
 pip install -r requirements.txt
 ```
 

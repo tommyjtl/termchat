@@ -16,7 +16,7 @@
 - [ ] Integrate ability to interrupt unresponsive requests (adding timeout)
 - [ ] Enable users to halt overly lengthy responses
 - [ ] More examples for common use cases
-- [ ] Setup a `~/.config/termchat/` directory for storing character presets
+- [ ] Setup a `~/.config/termq/` directory for storing character presets
 - [ ] Handle exceptions for unresponsive model API and enable retries
   - Options to retry with same previous chat context
 
@@ -39,7 +39,7 @@ That model is currently overloaded with other requests. You can retry your reque
 ## Normal Priority
 
 - [ ] Resolve issues with Q&A in PDFs (need to consider full context)
-- [ ] Develop `termchat` as a PyPI package
+- [ ] Develop `termq` as a PyPI package
 - [ ] Consider supporting URLs for online PDF files
 - [ ] Utilize KNN over naive dot product for finding closest context match
 - [ ] Streamline chatbot responses with the streaming API [reference](https://til.simonwillison.net/gpt3/python-chatgpt-streaming-api)
