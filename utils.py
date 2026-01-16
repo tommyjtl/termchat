@@ -76,12 +76,24 @@ class Chat:
             shutil.copy2(source_file, destination_file)
 
     def updateCharacterPresets(self):
+        # Get the path to the package's characters directory
+        package_dir = os.path.dirname(os.path.abspath(__file__))
+        characters_source = os.path.join(package_dir, "characters")
+        
+        # Fallback to current directory if package characters don't exist
+        if not os.path.exists(characters_source):
+            characters_source = "./characters"
+        
+        # Only update if source characters directory exists
+        if not os.path.exists(characters_source):
+            return
+        
         # remove the existing character presets
         if os.path.exists(self.config_character_path):
             shutil.rmtree(self.config_character_path)
             os.mkdir(self.config_character_path)
 
-        self.copy_files("./characters", self.config_character_path)
+        self.copy_files(characters_source, self.config_character_path)
 
     def loadCharacters(self, character_file):
         if character_file in self.character_presets:

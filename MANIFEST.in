@@ -1,4 +1,4 @@
 include README.md
 include LICENSE
 include requirements.txt
-recursive-include termchat/characters *.json *.txt
+recursive-include termq/characters *.json *.txt

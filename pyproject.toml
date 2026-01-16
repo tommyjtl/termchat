@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "termq"
-version = "0.1.0"
+version = "0.1.1"
 description = "A minimal GPT chat client in the terminal"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -42,9 +42,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/termq"
-Repository = "https://github.com/yourusername/termq"
-"Bug Tracker" = "https://github.com/yourusername/termq/issues"
+Homepage = "https://github.com/tommyjtl/termchat"
+Repository = "https://github.com/tommyjtl/termchat"
+"Bug Tracker" = "https://github.com/tommyjtl/termchatissues"
 
 [project.scripts]
 termq = "termq.cli:main"
