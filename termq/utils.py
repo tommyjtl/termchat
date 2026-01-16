@@ -79,11 +79,11 @@ class Chat:
         # Get the path to the package's characters directory
         package_dir = os.path.dirname(os.path.abspath(__file__))
         characters_source = os.path.join(package_dir, "characters")
-        
+
         # Only update if source characters directory exists
         if not os.path.exists(characters_source):
             return
-        
+
         # remove the existing character presets
         if os.path.exists(self.config_character_path):
             shutil.rmtree(self.config_character_path)
@@ -466,7 +466,7 @@ class PDF:
             completion = openai.ChatCompletion.create(
                 # model="gpt-3.5-turbo",
                 # model="gpt-4",
-                model="gpt-4-1106-preview",
+                model="gpt-5-mini",
                 messages=[
                     {
                         "role": "user",
