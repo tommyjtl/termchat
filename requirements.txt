@@ -3,3 +3,4 @@ termcolor>=2.3.0
 rich>=13.4.2
 PyMuPDF>=1.22.3
 ocrmypdf>=13.7.0
+pyperclip==1.8.2
