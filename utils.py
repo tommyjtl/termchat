@@ -41,29 +41,30 @@ class Chat:
     }
 
     user_home = os.path.expanduser("~")
+    config_root_path = None
     config_character_path = None
+    history_path = None
 
     def __init__(self):
-        self.config_character_path = self.user_home + "/.config/termq/characters"
+        self.config_root_path = os.path.join(self.user_home, ".config", "termq")
+        self.config_character_path = os.path.join(self.config_root_path, "characters")
+        self.history_path = os.path.join(self.config_root_path, "history")
 
         self.generateConfig()
         self.updateCharacterPresets()
 
         # load the character presets
-        json_files = glob.glob(self.config_character_path + "/*.json")
+        self.character_presets = {}
+        json_files = glob.glob(os.path.join(self.config_character_path, "*.json"))
         for file in json_files:
-            self.character_presets[file.split("/")[-1].split(".")[0]] = file
+            preset_name = os.path.splitext(os.path.basename(file))[0]
+            self.character_presets[preset_name] = file
 
     def generateConfig(self):
         """Create necessary directory structure for termq."""
-        if not os.path.exists(self.user_home + "/.config"):
-            os.mkdir(self.user_home + "/.config")
-
-        if not os.path.exists(self.user_home + "/.config/termq"):
-            os.mkdir(self.user_home + "/.config/termq")
-
-        if not os.path.exists(self.user_home + "/.config/termq/characters"):
-            os.mkdir(self.user_home + "/.config/termq/characters")
+        os.makedirs(self.config_root_path, exist_ok=True)
+        os.makedirs(self.config_character_path, exist_ok=True)
+        os.makedirs(self.history_path, exist_ok=True)
 
     def copy_files(self, source_dir, destination_dir):
         # Get the list of files in the source directory
@@ -79,21 +80,19 @@ class Chat:
         # Get the path to the package's characters directory
         package_dir = os.path.dirname(os.path.abspath(__file__))
         characters_source = os.path.join(package_dir, "characters")
-        
+
         # Fallback to current directory if package characters don't exist
         if not os.path.exists(characters_source):
             characters_source = "./characters"
-        
+
         # Only update if source characters directory exists
         if not os.path.exists(characters_source):
             return
-        
-        # remove the existing character presets
-        if os.path.exists(self.config_character_path):
-            shutil.rmtree(self.config_character_path)
-            os.mkdir(self.config_character_path)
 
         self.copy_files(characters_source, self.config_character_path)
+
+    def getHistoryFilePath(self, chat_datetime):
+        return os.path.join(self.history_path, f"chat_history-{chat_datetime}.json")
 
     def loadCharacters(self, character_file):
         if character_file in self.character_presets:
@@ -149,7 +148,7 @@ class Chat:
         welcome_msg = [
             # f"[SYSTEM] Using `{engine_type}`",
             f"[SYSTEM] {self.character['name']} is ready to chat.",
-            "[SYSTEM] Chat dialogue will be saved to `history/`",
+            f"[SYSTEM] Chat dialogue will be saved to `{self.history_path}`",
             "[SYSTEM] <Press Ctrl+C to exit>",
         ]
         rprint(
@@ -161,10 +160,6 @@ class Chat:
                 # subtitle="Thank you"
             )
         )
-
-        if not os.path.isdir("history"):
-            print("Directory does not exist.")
-            os.mkdir("history")
 
     def showGoodbyeMessage(self):
         goodbye_msg = [

@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 import pyperclip
+import time
 
 from termcolor import colored, cprint
 from rich.console import Console
@@ -8,6 +9,7 @@ from rich import print as rprint
 from rich.panel import Panel
 from rich.live import Live
 from rich.markdown import Markdown
+from prompt_toolkit import prompt as prompt_input
 
 import openai
 from argparse import ArgumentParser
@@ -118,98 +120,127 @@ def main():
 
     chat.welcome(engine_type=args.engine_type)
 
+    last_interrupt_time = None
+    INTERRUPT_TIMEOUT = 1  # seconds
+
     try:
         while True:
-            # Prompt for user input
-            user_input = input(colored("Enter your message: ", "yellow"))
-            print(bcolors.ENDC, end="")
+            try:
+                # Prompt for user input
+                user_input = prompt_input(colored("Enter your message: ", "yellow"))
+                last_interrupt_time = None  # Reset on successful input
+                print(bcolors.ENDC, end="")
 
-            # Exit the program if the user types `/exit``
-            if user_input == "/exit" or user_input == "/quit" or user_input == "/bye":
-                chat.showGoodbyeMessage()
-                exit(0)
-
-            # Append user input to the list of messages to the previous messages
-            messages.append({"role": "user", "content": user_input})
-
-            if args.steaming_mode:
-                current_msg = ""
-                for chunk in openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    # model="gpt-4",
-                    messages=messages,
-                    temperature=character["temperature"],
-                    stream=True,
+                # Exit the program if the user types `/exit``
+                if (
+                    user_input == "/exit"
+                    or user_input == "/quit"
+                    or user_input == "/bye"
                 ):
-                    content = chunk["choices"][0].get("delta", {}).get("content")
-                    if content is not None:
-                        current_msg += content
-                        cprint(content, "light_green", end="", flush=True)
+                    chat.showGoodbyeMessage()
+                    exit(0)
 
-                # Append assistant response to the list of messages
-                messages.append({"role": "assistant", "content": current_msg})
-                print()
-            else:
-                status = console.status(
-                    f"Waiting for {character['name']}...", spinner="bouncingBar"
-                )
-                with Live(
-                    Panel(status, border_style="green bold", style="green"),
-                    refresh_per_second=4,
-                    transient=True,
-                ):
-                    try:
-                        result = openai.ChatCompletion.create(
-                            model=args.engine_type,
-                            messages=messages,
-                            temperature=character["temperature"],
-                            timeout=30,  # set a request timeout of 30 seconds
-                        )
-                    except Exception as e:
-                        error_msg = [e]
-                        rprint(
-                            Panel(
-                                error_msg,
-                                title="System",
-                                border_style="red bold",
-                                style="red",
+                # Append user input to the list of messages to the previous messages
+                messages.append({"role": "user", "content": user_input})
+
+                if args.steaming_mode:
+                    current_msg = ""
+                    for chunk in openai.ChatCompletion.create(
+                        model="gpt-3.5-turbo",
+                        # model="gpt-4",
+                        messages=messages,
+                        temperature=character["temperature"],
+                        stream=True,
+                    ):
+                        content = chunk["choices"][0].get("delta", {}).get("content")
+                        if content is not None:
+                            current_msg += content
+                            cprint(content, "light_green", end="", flush=True)
+
+                    # Append assistant response to the list of messages
+                    messages.append({"role": "assistant", "content": current_msg})
+                    print()
+                else:
+                    status = console.status(
+                        f"Waiting for {character['name']}...", spinner="bouncingBar"
+                    )
+                    with Live(
+                        Panel(status, border_style="green bold", style="green"),
+                        refresh_per_second=4,
+                        transient=True,
+                    ):
+                        try:
+                            result = openai.ChatCompletion.create(
+                                model=args.engine_type,
+                                messages=messages,
+                                temperature=character["temperature"],
+                                timeout=30,  # set a request timeout of 30 seconds
                             )
+                        except Exception as e:
+                            error_msg = [e]
+                            rprint(
+                                Panel(
+                                    error_msg,
+                                    title="System",
+                                    border_style="red bold",
+                                    style="red",
+                                )
+                            )
+
+                    status.stop()
+
+                    # Copy the response to the clipboard
+                    pyperclip.copy(result.choices[0].message.content)
+
+                    response = result.choices[0].message.content
+                    rprint(
+                        Panel(
+                            Markdown(response),
+                            title=character["name"],
+                            highlight=True,
+                            border_style="green bold",
+                            style="green",
                         )
-
-                status.stop()
-
-                # Copy the response to the clipboard
-                pyperclip.copy(result.choices[0].message.content)
-
-                response = result.choices[0].message.content
-                rprint(
-                    Panel(
-                        Markdown(response),
-                        title=character["name"],
-                        highlight=True,
-                        border_style="green bold",
-                        style="green",
                     )
-                )
 
-                rprint(
-                    Panel(
-                        "Copied to clipboard",
-                        title="SYSTEM",
-                        border_style="bright_black",
-                        style="bright_black",
+                    rprint(
+                        Panel(
+                            "Copied to clipboard",
+                            title="SYSTEM",
+                            border_style="bright_black",
+                            style="bright_black",
+                        )
                     )
-                )
 
-                if args.enable_tts:
-                    chat.say(result.choices[0].message.content, character["voice"])
+                    if args.enable_tts:
+                        chat.say(result.choices[0].message.content, character["voice"])
 
-                messages.append(
-                    {"role": "assistant", "content": result.choices[0].message.content}
-                )
+                    messages.append(
+                        {
+                            "role": "assistant",
+                            "content": result.choices[0].message.content,
+                        }
+                    )
 
-            with open("history/chat_history-" + str(chat_datetime) + ".json", "w") as f:
-                f.writelines(json.dumps(messages, indent=2))
+                    with open(chat.getHistoryFilePath(chat_datetime), "w") as f:
+                        f.writelines(json.dumps(messages, indent=2))
+
+            except KeyboardInterrupt:
+                current_time = time.time()
+
+                # If user pressed Ctrl+C again within the timeout, exit
+                if (
+                    last_interrupt_time
+                    and (current_time - last_interrupt_time) < INTERRUPT_TIMEOUT
+                ):
+                    print()
+                    chat.showGoodbyeMessage()
+                    exit(0)
+
+                # First Ctrl+C - clear input and show message
+                last_interrupt_time = current_time
+                print(colored("\nPress Ctrl+C again to exit", "yellow"))
+                continue
 
     except KeyboardInterrupt:
         # Exit the program if the user presses Ctrl+C

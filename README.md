@@ -41,6 +41,18 @@ Options:
 
 ### Chat with GPT
 
+### Config setup
+
+On first run, `termq` creates this config layout automatically:
+
+```bash
+~/.config/termq/
+  characters/   # built-in presets copied from the package
+  history/      # chat_history-YYYYMMDD-HHMMSS.json files
+```
+
+You can pass either a preset name (for example `-c hal9000`) or a full path to a custom character file.
+
 #### Default Assistant
 
 ```bash

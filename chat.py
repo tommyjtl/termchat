@@ -208,7 +208,7 @@ def main():
                     {"role": "assistant", "content": result.choices[0].message.content}
                 )
 
-            with open("history/chat_history-" + str(chat_datetime) + ".json", "w") as f:
+            with open(chat.getHistoryFilePath(chat_datetime), "w") as f:
                 f.writelines(json.dumps(messages, indent=2))
 
     except KeyboardInterrupt:
