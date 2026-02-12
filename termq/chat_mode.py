@@ -10,6 +10,7 @@ from rich.panel import Panel
 from rich.live import Live
 from rich.markdown import Markdown
 from prompt_toolkit import prompt as prompt_input
+from prompt_toolkit.formatted_text import ANSI
 
 import openai
 from argparse import ArgumentParser
@@ -127,7 +128,9 @@ def main():
         while True:
             try:
                 # Prompt for user input
-                user_input = prompt_input(colored("Enter your message: ", "yellow"))
+                user_input = prompt_input(
+                    ANSI(colored("Enter your message: ", "yellow"))
+                )
                 last_interrupt_time = None  # Reset on successful input
                 print(bcolors.ENDC, end="")
 
@@ -170,22 +173,26 @@ def main():
                         transient=True,
                     ):
                         try:
-                            result = openai.ChatCompletion.create(
-                                model=args.engine_type,
-                                messages=messages,
-                                temperature=character["temperature"],
-                                timeout=30,  # set a request timeout of 30 seconds
-                            )
+                            request_payload = {
+                                "model": args.engine_type,
+                                "messages": messages,
+                                "timeout": 30,
+                            }
+                            if not args.engine_type.startswith("gpt-5"):
+                                request_payload["temperature"] = character[
+                                    "temperature"
+                                ]
+                            result = openai.ChatCompletion.create(**request_payload)
                         except Exception as e:
-                            error_msg = [e]
                             rprint(
                                 Panel(
-                                    error_msg,
+                                    str(e),
                                     title="System",
                                     border_style="red bold",
                                     style="red",
                                 )
                             )
+                            continue
 
                     status.stop()
 

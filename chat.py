@@ -159,22 +159,24 @@ def main():
                     transient=True,
                 ):
                     try:
-                        result = openai.ChatCompletion.create(
-                            model=args.engine_type,
-                            messages=messages,
-                            # temperature=character["temperature"],
-                            timeout=30,  # set a request timeout of 30 seconds
-                        )
+                        request_payload = {
+                            "model": args.engine_type,
+                            "messages": messages,
+                            "timeout": 30,
+                        }
+                        if not args.engine_type.startswith("gpt-5"):
+                            request_payload["temperature"] = character["temperature"]
+                        result = openai.ChatCompletion.create(**request_payload)
                     except Exception as e:
-                        error_msg = [e]
                         rprint(
                             Panel(
-                                error_msg,
+                                str(e),
                                 title="System",
                                 border_style="red bold",
                                 style="red",
                             )
                         )
+                        continue
 
                 status.stop()
 
