@@ -18,7 +18,7 @@ pip install build twine
 
 2. Build the distribution packages:
 ```bash
-python -m build
+rm -rf dist/* && python -m build
 ```
 
 This creates:

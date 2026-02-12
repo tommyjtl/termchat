@@ -461,7 +461,7 @@ class PDF:
             completion = openai.ChatCompletion.create(
                 # model="gpt-3.5-turbo",
                 # model="gpt-4",
-                model="gpt-4-1106-preview",
+                model="gpt-5-mini",
                 messages=[
                     {
                         "role": "user",
