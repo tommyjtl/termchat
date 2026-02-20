@@ -4,3 +4,4 @@ rich>=13.4.2
 PyMuPDF>=1.22.3
 ocrmypdf>=13.7.0
 pyperclip==1.8.2
+prompt_toolkit>=3.0.0

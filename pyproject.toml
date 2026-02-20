@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "termq"
-version = "0.1.7"
+version = "0.1.8"
 description = "A minimal GPT chat client in the terminal"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -32,6 +32,7 @@ dependencies = [
     "PyMuPDF>=1.22.3",
     "ocrmypdf>=13.7.0",
     "pyperclip==1.8.2",
+    "prompt_toolkit>=3.0.0",
 ]
 
 [project.optional-dependencies]
